@@ -71,3 +71,8 @@ for the full delivery contract.
   Split work along the pipeline: live/dead -> team -> spell post-processing; run rules-auditor
   before any final CSV.
 - Never commit `evaluation/results/*.csv` (except `baseline_*`), match data, or derived frame-level exports.
+
+## Pipeline code (`possession/`)
+Council winner (see `docs/council/VERDICT.md`): 5 Hz Viterbi over {H,A,D}; constants in
+`possession/params.py` are fixed a priori. `make test` (synthetic only), `make run OUT=...` (needs data).
+Smart Tagging anchors are behind `--use-tags`, default off, semantics unverified.
