@@ -1,4 +1,6 @@
 """Per-sample (5 Hz) features from tracking arrays. Missing ball stays missing evidence."""
+import warnings
+
 import numpy as np
 
 from possession import params as P
@@ -36,7 +38,8 @@ def build_features(trk, pitch):
     bx, by = ball_b[:, 0], ball_b[:, 1]
     m = P.OOB_MARGIN_M
     oob = have & ((bx < -m) | (bx > length + m) | (by < -m) | (by > width + m))
-    with np.errstate(all="ignore"):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)   # all-NaN rows -> NaN -> 99 below
         med = np.nanmedian(trk["pspeed"], axis=1)
     return {"dh": dh, "da": da, "have": have, "observed": seen, "oob": oob,
             "ball_speed": speed, "player_speed": np.nan_to_num(med, nan=99.0)}
