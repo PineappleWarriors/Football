@@ -56,3 +56,18 @@ python evaluation/validate_submission.py <submission.csv>
 Run the validator on every final CSV. A valid submission must contain exactly one row per match
 frame with the expected frame numbers, column names, and allowed labels. Consult `SUBMISSION.md`
 for the full delivery contract.
+
+## Project setup (Jared_Dev)
+
+- Problem brief and open questions: `docs/PROBLEM.md`. Experiment log: `docs/EXPERIMENTS.md`.
+  Technical-document skeleton: `docs/TECHNICAL_DOC.md`. Shortcuts in `Makefile` (`make eval`, `make validate F=...`).
+- **Organiser rules clarification (supersedes other docs):** no checking output against video, no hand
+  labels/corrections on the provided game, no uploading provided data to AI services, no training,
+  fitting or calibrating on the ground truth or provided video. Tune only on external data.
+- Data is not in the repo (gated, gitignored). Without `data/`, only the scorer and baselines run.
+- Subagents in `.claude/agents/` (data-engineer, deadball-detector, possession-assigner,
+  spell-postprocessor, rules-auditor); skills in `.claude/skills/` (possession-definition,
+  score-and-compare, validate-submission, spell-postprocessing, mtah-rules-check).
+  Split work along the pipeline: live/dead -> team -> spell post-processing; run rules-auditor
+  before any final CSV.
+- Never commit `evaluation/results/*.csv` (except `baseline_*`), match data, or derived frame-level exports.
