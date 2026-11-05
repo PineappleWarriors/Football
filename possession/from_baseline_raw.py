@@ -56,11 +56,17 @@ LAM_TEAM = float(np.log(14 * P.HZ))
 LAM_DEAD = float(np.log(20 * P.HZ))
 
 
-def run(csv_path, events, blocks, n_frames, step=P.STEP, lam_team=LAM_TEAM, lam_dead=LAM_DEAD):
+def run(csv_path, events, blocks, n_frames, step=P.STEP, lam_team=LAM_TEAM, lam_dead=LAM_DEAD,
+        still=None):
+    """still: optional (known, still) boolean arrays per sample from the aligned broadcast feed."""
     nv, seen = nearest_series(csv_path, n_frames, step)
     tv, dead = tag_series(events, len(nv), step)
     dead = np.where(long_missing(seen, int(LONG_MISSING_S * P.HZ)),
                     np.maximum(dead, LONG_MISSING_DEAD), dead)
+    if still is not None:
+        known, st = still
+        dead = np.where(known & st & ~seen, np.maximum(dead, P.S_STILL_NOBALL_OR_SLOW), dead)
+        dead = np.where(known & st & seen, np.maximum(dead, P.S_STILL_ONLY), dead)
     z = NEAREST_WEIGHT * nv + TAG_WEIGHT * np.clip(tv, -1.0, 1.0)
     e = np.empty((len(nv), 3))
     e[:, H] = np.log1p(-dead) - np.logaddexp(0.0, -z)
