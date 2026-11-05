@@ -18,9 +18,9 @@ Priors are physical, not fitted to the GT.
 - 07 (video ball): GPU unknown, gain inside the noise band.
 - 02 Kalman/pull-estimator: keep only <=1 s linear bridging.
 - 10 Dawid-Skene EM: correlated estimators; use fixed capped weights.
-- 01's D_restart sub-state; Voronoi pitch control (v2 at most).
+- 01's D_restart sub-state; Voronoi pitch control.
 
-## Pipeline (each module = pure function on arrays, 5 Hz internal, upsample to 25 fps at the end)
+## Pipeline (pure functions; 5 Hz internal, upsample to 25 fps)
 
 | # | Module | Input -> Output | From |
 |---|---|---|---|
@@ -40,9 +40,9 @@ Priors are physical, not fitted to the GT.
 3. M7 cost selection, M6 merging (~3 h).
 4. M3 shape term for ball-missing frames (~4 h).
 5. M4 control test as switch gating (~5 h).
-6. X policy (~2 h), only if macroF1 loss is acceptable.
+6. X policy (~2 h).
 
-Total ~26 h.
+
 
 ## Risks
 - Team assignment is the cap; shape lags the ball, so keep its weight low.
