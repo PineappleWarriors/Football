@@ -42,3 +42,10 @@ make run OUT=evaluation/results/<team_name>.csv
 python evaluation/validate_submission.py evaluation/results/<team_name>.csv
 ```
 Python 3.8+, numpy + pandas only. Deterministic (no randomness in the pipeline).
+
+## 8. Stopgap path (only while the tactical ATD is unavailable)
+`possession/make_stopgap.py` fuses the organisers' shipped `evaluation/results/baseline_raw.csv`
+(automatic nearest-player output; D = untracked ball) with a capped Smart Tagging prior and the same
+Viterbi decode. It is NOT the intended final path: regenerate the final CSV from the raw ATD with
+`possession.pipeline`. Homography camera motion was checked as a dead-ball cue and rejected (does not
+separate D from live). Tag window ends do not line up with turnovers (checked on tags alone).
