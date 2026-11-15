@@ -1,7 +1,39 @@
 # RL experiment: can a learned policy beat the Viterbi model?
 
-**One button:** `./run_rl.sh 8` (Linux/macOS) or `run_rl.bat 8` (Windows) -- 8 = hours. Safe to stop and
-re-run (resumes). `./run_rl.sh smoke` is a ~6 minute check. Result: `rl/runs/latest/report.md`.
+## Quick start (about 10 minutes of setup, then it runs on its own)
+
+You do **not** need the competition's match data for this. It trains only on two public sample games
+that the script downloads for you (about 130 MB).
+
+1. **Install** Python 3.9 or newer (https://www.python.org/downloads/ -- on Windows tick
+   "Add Python to PATH") and Git.
+2. **Get the repository** (the branch with the RL code):
+   ```bash
+   git clone -b Jared_Dev https://github.com/PineappleWarriors/Football.git
+   cd Football
+   ```
+   (If the repo is private, sign in to GitHub when asked.)
+3. **Start it** -- one command, the number is how many hours to train (default 8):
+   - Windows: double-click `run_rl.bat`, or in a terminal `run_rl.bat 8`
+   - Linux / macOS: `./run_rl.sh 8`
+
+   The first time it creates a virtual environment (`.venv_rl`), installs numpy/pandas/torch
+   (a few minutes), downloads the data and builds features, then starts training by itself.
+4. **Watch it**: open `rl/runs/latest/dashboard.html` in your browser. It refreshes every 15 seconds
+   and shows the held-out score vs the current model, the training reward, and a timeline of the bot's
+   actual decisions (Home / Away / Dead ball) against the truth and the Viterbi model. Drag the slider
+   or press play to watch its decisions change as it trains.
+5. **Stop it any time**: press `Ctrl+C` **once** in the terminal. It finishes the current step, saves
+   everything, writes the report and exits. Run the same command again later to **resume** where it
+   stopped (a second `Ctrl+C` aborts immediately, but the last periodic checkpoint is kept).
+6. **Read the result**: `rl/runs/latest/report.md`. The bar to adopt RL over the current model:
+   more than +0.02 spellF1 in both folds. Send it to me and I'll go through it with you.
+
+`./run_rl.sh smoke` (or `run_rl.bat smoke`) is a ~6 minute check that everything works.
+To start a completely fresh run, delete the folder `rl/runs/latest`.
+
+Files: `rl/runs/latest/log.txt` (log), `metrics.json` (raw numbers), `*/best.pt` and `final/last.pt`
+(trained weights), `report.md`.
 
 ## What it does
 1. Creates `.venv_rl`, installs numpy/pandas/torch, downloads Metrica's public sample games 1 and 2.
