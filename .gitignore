@@ -65,3 +65,6 @@ env/
 
 # graphify cache
 graphify-out/cache/
+
+# external training/validation data (other games, public) - never commit
+external_data/

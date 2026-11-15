@@ -11,3 +11,15 @@ the external data (if any) used for tuning.
 | 2026-11-05 | tags_viterbi_v0 | Smart Tagging votes only + Viterbi | 0.191 (public) | 0.340 | 6 | 50.0 | 83 live spells over the match, mean ~75 s, no D: too sticky; tags too coarse in time. Dropped. |
 | 2026-11-05 | stopgap_v1 | baseline_raw nearest-player (D=ball untracked) + capped tag prior + Viterbi (lam=ln(70)) | 0.455 (public) | 0.515 | 12 | 25.0 | NO tactical ATD available. 173 live spells over the match (mean ~37 s, target ~14 s), no D output. Public window = 17 possessions (+-0.06 per possession): NOT evidence of beating smooth50. Constants not chosen by public score; but public scores were seen after each change (0.352 -> 0.336 -> 0.455). |
 | 2026-11-05 | stopgap_v2 | stopgap_v1 + dead-ball cue from broadcast player stillness (broadcast aligned to tactical algorithmically) | 0.455 (public) | 0.515 | 12 | 25.0 | public score identical to v1 (aligned stillness never fires in the first 5 min). Whole match: D = ~1,385 frames (<1% of graded; real dead ball is far more), live spells 182, mean ~35 s. Alignment: lags 4014 (1st half) / 26920 (2nd), verified windows agree 92% vs 51% control, cover 38% of graded frames; broadcast ball visible on only 5% of tactical ball-missing frames. |
+
+## External-game validation (Metrica sample games; labels from event data) -- spellF1 / macroF1
+Protocol: `python experiments/eval_external.py`; dead-ball model for each game trained on the OTHER game.
+| system | Game 1 | Game 2 |
+|---|---|---|
+| baseline nearest-player, best window (+-2 s) | 0.457 / 0.734 | 0.429 / 0.692 |
+| model v0: a-priori constants, rule dead-ball | 0.455 / 0.722 | 0.492 / 0.675 |
+| + ball-speed gate, soft control radius, tuned slope/switch cost | 0.552 / 0.758 | 0.562 / 0.702 |
+| + learned dead-ball model (cross-game) | **0.624 / 0.785** | **0.631 / 0.735** |
+Diagnostics that drove the changes: oracle dead-ball +0.06..0.12 spellF1, oracle team-in-gaps +0.08..0.11,
+both ~0.65-0.70; team accuracy 88-91% with ball seen but 24-34% when missing; team-shape model ~chance
+on ball-missing frames (dropped); parameter surface is a wide plateau (~0.55-0.56).

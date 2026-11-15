@@ -7,18 +7,18 @@ H, A, D = 0, 1, 2
 
 
 def emissions(feat, s_dead):
-    """Log-likelihood matrix [T,3]. Team evidence only when the ball is near someone."""
+    """Log-likelihood matrix [T,3]. Team evidence only while a player is close to a slow ball."""
     dh, da = feat["dh"], feat["da"]
-    near = np.minimum(dh, da) < P.CONTROL_RADIUS_M
-    diff = np.where(near, da, 0.0) - np.where(near, dh, 0.0)
+    dmin = np.minimum(dh, da)
+    ctrl = 1.0 / (1.0 + np.exp(np.clip((dmin - P.CONTROL_RADIUS_M) / P.CONTROL_SOFT_M, -50, 50)))
+    slow = np.nan_to_num(feat["ball_speed"], nan=0.0) < P.SPEED_GATE_MPS
+    diff = np.where(np.isfinite(da), da, 50.0) - np.where(np.isfinite(dh), dh, 50.0)
     margin = np.clip(diff, -P.MARGIN_CLIP_M, P.MARGIN_CLIP_M)
-    w = np.where(feat["observed"], 1.0, P.BRIDGED_WEIGHT)
+    w = np.where(feat["observed"], 1.0, P.BRIDGED_WEIGHT) * ctrl * slow
     z = P.TEAM_SLOPE * margin * w
-    log_ph = -np.logaddexp(0.0, -z)
-    log_pa = -np.logaddexp(0.0, z)
     e = np.empty((len(dh), 3))
-    e[:, H] = np.log1p(-s_dead) + log_ph
-    e[:, A] = np.log1p(-s_dead) + log_pa
+    e[:, H] = np.log1p(-s_dead) - np.logaddexp(0.0, -z)
+    e[:, A] = np.log1p(-s_dead) - np.logaddexp(0.0, z)
     e[:, D] = np.log(s_dead)
     return e
 

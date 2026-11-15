@@ -12,7 +12,18 @@ whole, correctly bounded spells, and a switching penalty acts as a possession-le
 - Dropped after review: learned sequence model, video ball detection, unsupervised EM ensemble.
 
 ## 3. Training data
-None. The pipeline has no trained component. No external dataset is used.
+Only EXTERNAL data, never the provided match, its video, or its ground truth.
+- Source: Metrica Sports public sample data, Sample_Game_1 and Sample_Game_2 (CSV format),
+  https://github.com/metrica-sports/sample-data (anonymised tracking + event data; README asks users to
+  acknowledge the source; it has no separate licence file -- confirm terms before publishing anything).
+- Labels: derived mechanically from the games' event data (possession = team of the last PASS/SHOT/
+  RECOVERY/restart; dead = BALL OUT/FAULT/goal until the next restart). Sanity check: 17.0 and 15.7
+  possessions per 5 min, mean 12-15 s -- the same statistics the challenge states for its ground truth.
+- What is trained: one small logistic regression (dead-ball probability from ball-gap structure and
+  player stillness; `possession/models/dead_ext_v1.json`, trained by `experiments/train_dead_model.py`).
+- What is tuned on external data: the switching cost, team-evidence slope, control radius and ball-speed
+  gate (`possession/params.py`), chosen on one external game and checked on the other.
+- Validation protocol: `experiments/eval_external.py` (train/tune on one game, test on the other, repo scorer).
 
 ## 4. Possession rules implemented
 - Per sample, team evidence = logistic in (distance of nearest away player - nearest home player) to
@@ -24,9 +35,8 @@ None. The pipeline has no trained component. No external dataset is used.
   under 2 s are merged into the longer neighbour. X is not used.
 
 ## 5. Parameter provenance
-Every constant in `possession/params.py` is fixed a priori (physical or principled). The H<->A
-penalty was sanity-checked on a self-generated simulator, never on the provided match, its video or
-the public ground truth. The public window is used only to check alignment/format.
+Physical constants are fixed a priori; the decoder constants were tuned on external games only (see 3).
+Nothing was tuned on the provided match, its video or the public ground truth.
 
 ## 6. Limitations
 Team assignment from nearest player is the accuracy cap; ball-missing frames cluster at aerial

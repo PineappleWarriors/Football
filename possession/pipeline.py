@@ -14,20 +14,10 @@ sys.path.insert(0, os.path.join(ROOT, "starter"))
 
 from games import GAME, GAMES, half_video_blocks, require, source_frames  # noqa: E402
 from possession import params as P  # noqa: E402
-from possession.decode import emissions, merge_short, viterbi  # noqa: E402
-from possession.deadball import dead_evidence, restart_anchors  # noqa: E402
-from possession.features import build_features  # noqa: E402
+from possession.deadball import restart_anchors  # noqa: E402
+from possession.model import decode_period, load_dead_model  # noqa: E402
 
 LETTERS = np.array(["H", "A", "D"])
-
-
-def decode_half(feat, free=None):
-    s = dead_evidence(feat)
-    return merge_short(viterbi(emissions(feat, s), free=free))
-
-
-def slice_feat(feat, mask):
-    return {k: v[mask] for k, v in feat.items()}
 
 
 def to_frames(samples_frames, path, lo, hi, out):
@@ -46,8 +36,8 @@ def run(game=GAME, data_dir=None, use_tags=False):
     meta, raw = require(["atd_meta", "atd_raw"], game, data_dir)
     pitch = GAMES[game]["pitch"]
     trk = load_tracking(raw, team_of_each_track(meta), pitch)
-    feat = build_features(trk, pitch)
     frames = trk["frames"]
+    dead_model = load_dead_model()
     events = []
     if use_tags:
         import load_smart_tagging
@@ -57,7 +47,9 @@ def run(game=GAME, data_dir=None, use_tags=False):
     for _, lo, hi in half_video_blocks(game):
         m = (frames >= lo) & (frames <= hi)
         free = restart_anchors(events, len(frames))[m] if use_tags else None
-        path = decode_half(slice_feat(feat, m), free)
+        half = {k: trk[k][m] for k in ("players", "pspeed", "ball")}
+        half["team"] = trk["team"]
+        path = decode_period(half, pitch, dead_model, free)
         to_frames(frames[m], path, lo, hi, labels)
     return labels
 

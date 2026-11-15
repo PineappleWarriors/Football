@@ -3,8 +3,10 @@
 STEP = 5                    # internal rate = 25 fps / 5 = 5 Hz
 HZ = 5.0
 BRIDGE_S = 1.0              # linearly bridge ball gaps up to this long (physically plausible)
-CONTROL_RADIUS_M = 10.0     # beyond this the ball is "loose": no team evidence
-TEAM_SLOPE = 0.4            # logit per metre of (d_away - d_home); 2 m gap -> p ~ 0.69
+CONTROL_RADIUS_M = 5.0      # nearest player must be this close for team evidence (soft edge below)
+CONTROL_SOFT_M = 1.0
+SPEED_GATE_MPS = 10.0       # ball faster than this is in flight: no team evidence
+TEAM_SLOPE = 1.0            # logit per metre of (d_away - d_home)
 MARGIN_CLIP_M = 8.0
 BRIDGED_WEIGHT = 0.5        # evidence weight on interpolated ball positions
 OOB_MARGIN_M = 1.0          # ball this far outside the pitch rectangle = out of play
@@ -15,6 +17,6 @@ S_OOB = 0.95
 S_STILL_NOBALL_OR_SLOW = 0.70
 S_STILL_ONLY = 0.30
 S_BASE = 0.04
-LAMBDA_TEAM = 6.0           # nats to switch H<->A (a priori, sanity-checked on the simulator)
+LAMBDA_TEAM = 2.0           # nats to switch H<->A (tuned on external Metrica games, cross-game checked)
 LAMBDA_DEAD = 5.0           # nats to switch live<->dead
 MIN_SPELL_S = 2.0           # merge live runs shorter than this into the longer neighbour
