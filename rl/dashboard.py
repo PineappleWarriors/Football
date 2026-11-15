@@ -126,7 +126,7 @@ function line(canvas, series, opts){
   let x0=Math.min(...xs),x1=Math.max(...xs); if(x0===x1)x1=x0+1; let y0=Math.min(...ys),y1=Math.max(...ys); const m=(y1-y0)*0.1||0.05; y0-=m;y1+=m;
   const X=x=>pad.l+(x-x0)/(x1-x0)*(w-pad.l-pad.r), Y=y=>h-pad.b-(y-y0)/(y1-y0)*(h-pad.t-pad.b);
   g.strokeStyle=C('--line');g.fillStyle=C('--mute');g.font='11px system-ui';g.lineWidth=1;
-  for(let i=0;i<=4;i++){const y=y0+(y1-y0)*i/4;g.beginPath();g.moveTo(pad.l,Y(y));g.lineTo(w-pad.r,Y(y));g.stroke();g.fillText(y.toFixed(2),4,Y(y)+4);}
+  for(let i=0;i<=4;i++){const y=y0+(y1-y0)*i/4;g.beginPath();g.moveTo(pad.l,Y(y));g.lineTo(w-pad.r,Y(y));g.stroke();g.fillText(y.toFixed((y1-y0)<0.1?3:2),4,Y(y)+4);}
   g.fillText(String(Math.round(x0)),pad.l,h-6);g.fillText(String(Math.round(x1)),w-pad.r-24,h-6);
   (opts.hlines||[]).forEach(l=>{g.strokeStyle=l.c;g.setLineDash([6,4]);g.lineWidth=2;g.beginPath();g.moveTo(pad.l,Y(l.y));g.lineTo(w-pad.r,Y(l.y));g.stroke();g.setLineDash([]);});
   series.forEach(s=>{g.strokeStyle=s.c;g.lineWidth=2;g.beginPath();s.pts.forEach((p,i)=>{i?g.lineTo(X(p[0]),Y(p[1])):g.moveTo(X(p[0]),Y(p[1]));});g.stroke();
@@ -145,7 +145,7 @@ Object.entries(D.stages).forEach(([name,st])=>{
   const rl=st.history.filter(h=>h.phase==='rl'), im=st.history.filter(h=>h.phase==='imit');
   const vitRep=(D.stages[name].viterbi||{}); 
   sec.innerHTML='<h2>'+pretty+'</h2><p class="sub">'+(s.phase?('phase: '+s.phase+' · step '+s.it+' · best selected step '+(s.best_it||'–')):'')+'</p>'+
-   '<div class="grid two"><div class="card"><h2>Held-out spellF1 (the ranking metric)</h2><p class="sub">Game the bot never trained on. Dashed = the current Viterbi model; higher is better.</p><canvas id="c1_'+name+'"></canvas><div class="legend"><span><i class="sw" style="background:var(--rl)"></i>RL bot (reported half)</span><span><i class="sw" style="background:var(--vit)"></i>Viterbi model</span></div></div>'+
+   '<div class="grid two"><div class="card"><h2>Held-out spellF1 (the ranking metric)</h2><p class="sub">Game the bot never trained on. Dashed lines: the current Viterbi model and the bot before RL started. Higher is better.</p><canvas id="c1_'+name+'"></canvas><div class="legend"><span><i class="sw" style="background:var(--rl)"></i>RL bot (reported half)</span><span><i class="sw" style="background:var(--vit)"></i>Viterbi model</span><span><i class="sw" style="background:var(--mute)"></i>bot before RL (imitation only)</span></div></div>'+
    '<div class="card"><h2>Held-out macroF1</h2><p class="sub">Per-frame accuracy across H/A/D (secondary).</p><canvas id="c2_'+name+'"></canvas></div></div>'+
    '<div class="grid two" style="margin-top:14px"><div class="card"><h2>Training reward</h2><p class="sub">Average reward of the bot\'s sampled decisions on training windows (smoothed). It should drift up.</p><canvas id="c3_'+name+'"></canvas></div>'+
    '<div class="card"><h2>Loss and exploration</h2><p class="sub">Label-anchor loss (lower = closer to the event labels) and policy entropy (how undecided the bot is).</p><canvas id="c4_'+name+'"></canvas><div class="legend"><span><i class="sw" style="background:var(--H)"></i>anchor loss</span><span><i class="sw" style="background:var(--A)"></i>entropy</span></div></div></div>'+
