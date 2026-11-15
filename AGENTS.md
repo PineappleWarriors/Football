@@ -76,3 +76,9 @@ for the full delivery contract.
 Council winner (see `docs/council/VERDICT.md`): 5 Hz Viterbi over {H,A,D}; constants in
 `possession/params.py` are fixed a priori. `make test` (synthetic only), `make run OUT=...` (needs data).
 Smart Tagging anchors are behind `--use-tags`, default off, semantics unverified.
+
+## External validation and RL (`experiments/`, `rl/`)
+- `python experiments/eval_external.py`: validate/tune on Metrica sample games (other games = allowed
+  for training/tuning); results in `docs/EXPERIMENTS.md`. `possession/models/dead_ext_v1.json` is trained
+  only on those games.
+- `./run_rl.sh [hours]` / `run_rl.bat`: overnight RL experiment; see `rl/README.md`.

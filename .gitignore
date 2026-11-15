@@ -68,3 +68,8 @@ graphify-out/cache/
 
 # external training/validation data (other games, public) - never commit
 external_data/
+
+# RL run artefacts
+rl/runs/
+rl/run_console.log
+.venv_rl/
